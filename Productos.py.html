@@ -1,0 +1,260 @@
+<html>
+<head>
+<title>Productos.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.ln { color: rgb(0,0,0); font-weight: normal; font-style: normal; }
+.s0 { color: rgb(0,0,128); font-weight: bold; }
+.s1 { color: rgb(0,0,0); }
+.s2 { color: rgb(128,128,128); font-style: italic; }
+.s3 { color: rgb(0,128,128); font-weight: bold; }
+.s4 { color: rgb(0,0,255); }
+</style>
+</head>
+<BODY BGCOLOR="#ffffff">
+<TABLE CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#C0C0C0" >
+<TR><TD><CENTER>
+<FONT FACE="Arial, Helvetica" COLOR="#000000">
+Productos.py</FONT>
+</center></TD></TR></TABLE>
+<pre>
+<span class="s0">import </span><span class="s1">sqlite3 </span><span class="s0">as </span><span class="s1">produtos 
+</span><span class="s0">from </span><span class="s1">gi.repository </span><span class="s0">import </span><span class="s1">Gtk 
+ 
+</span><span class="s0">class </span><span class="s1">Products: 
+    </span><span class="s2">#Creamos acceso a las ventanas de glade</span><span class="s1"> 
+    archivoVentanaPrincipal = </span><span class="s3">&quot;VentanaPrincipal.glade&quot;</span><span class="s1"> 
+    archivoVentanaConsulta = </span><span class="s3">&quot;VentanaConsulta.glade&quot;</span><span class="s1"> 
+    archivoVentanaIntroducir = </span><span class="s3">&quot;VentanaIntroducir.glade&quot;</span><span class="s1"> 
+    archivoVentanaEliminar = </span><span class="s3">&quot;VentanaEliminar.glade&quot;</span><span class="s1"> 
+    archivoVentanaAlerta = </span><span class="s3">&quot;Alertacodigo.glade&quot;</span><span class="s1"> 
+    archivoVentanaArticuloEliminado = </span><span class="s3">&quot;VentanaArticuloEliminado.glade&quot;</span><span class="s1"> 
+    </span><span class="s2">#Creamos constructores de GTK para las interfaces</span><span class="s1"> 
+    builderVentanaAlerta = Gtk.Builder() 
+    builderVentanaPrincipal = Gtk.Builder() 
+    builderVentanaConsulta = Gtk.Builder() 
+    builderVentanaIntroducir = Gtk.Builder() 
+    builderVentanaEliminar = Gtk.Builder() 
+    builderVentanaArticuloEliminado = Gtk.Builder() 
+    </span><span class="s2">#Añadimos los archivos a los constructores de la interface</span><span class="s1"> 
+    builderVentanaPrincipal.add_from_file(archivoVentanaPrincipal) 
+    builderVentanaConsulta.add_from_file(archivoVentanaConsulta) 
+    builderVentanaIntroducir.add_from_file(archivoVentanaIntroducir) 
+    builderVentanaEliminar.add_from_file(archivoVentanaEliminar) 
+    builderVentanaAlerta.add_from_file(archivoVentanaAlerta) 
+    builderVentanaArticuloEliminado.add_from_file(archivoVentanaArticuloEliminado) 
+    </span><span class="s2">#Recogemos las ventanas contenedoras</span><span class="s1"> 
+    ventanaEntrada = builderVentanaPrincipal.get_object(</span><span class="s3">&quot;VentanaPrincipal&quot;</span><span class="s1">) 
+    ventanaConsultas = builderVentanaConsulta.get_object(</span><span class="s3">&quot;VentanaConsulta&quot;</span><span class="s1">) 
+    ventanaIntroducir = builderVentanaIntroducir.get_object(</span><span class="s3">&quot;VentanaIntroducir&quot;</span><span class="s1">) 
+    ventanaEliminar = builderVentanaEliminar.get_object(</span><span class="s3">&quot;VentanaEliminar&quot;</span><span class="s1">) 
+    ventanaAlertaCodigo = builderVentanaAlerta.get_object(</span><span class="s3">&quot;AlertaCodigo&quot;</span><span class="s1">) 
+    ventanaAlertaArchivoEliminado = builderVentanaArticuloEliminado.get_object(</span><span class="s3">&quot;VentanaArticuloEliminado&quot;</span><span class="s1">) 
+    ventanaEntrada.show_all() 
+    </span><span class="s2">#Conectamenos a la base de datos y creamos un cursor para recorrerla</span><span class="s1"> 
+    bd = produtos.connect(</span><span class="s3">&quot;productos.dat&quot;</span><span class="s1">) 
+    print(bd) 
+    cursor = bd.cursor() 
+ 
+ 
+ 
+</span><span class="s2">#Funciones de búsqueda y modificación:</span><span class="s1"> 
+    </span><span class="s0">def </span><span class="s1">al_buscar(self, busqueda): 
+        </span><span class="s2">#Recogemos el codigo de la caja de texto</span><span class="s1"> 
+        codigo = self.cajaIdConsulta.get_text() 
+        </span><span class="s2">#Buscamos el codigo recogido en la base de datos</span><span class="s1"> 
+        self.cursor.execute(</span><span class="s3">&quot;Select * from productos where Codigo='&quot;</span><span class="s1">+codigo+</span><span class="s3">&quot;'&quot;</span><span class="s1">) 
+        </span><span class="s2">#Recorremos el cursor y mostraremos por pantalla si existe</span><span class="s1"> 
+        </span><span class="s0">for </span><span class="s1">producto </span><span class="s0">in </span><span class="s1">self.cursor: 
+            self.cajaNombreConsultada.set_text(str(producto[</span><span class="s4">1</span><span class="s1">])) 
+            self.cajaPrecioConsultada.set_text(str(producto[</span><span class="s4">2</span><span class="s1">])) 
+            self.cajaCantidadConsultada.set_text(str(producto[</span><span class="s4">3</span><span class="s1">])) 
+ 
+ 
+    </span><span class="s0">def </span><span class="s1">introducirStock(self, introducir): 
+        id = self.cajaIntroducirCodId.get_text() 
+        nombre = self.cajaIntroducirNombre.get_text() 
+        precio = self.cajaIntroducirPrecio.get_text() 
+        cantidad = self.cajaIntroducirCantidad.get_text() 
+        self.limpiarIntroducir(self) 
+        print(</span><span class="s3">&quot;inserte&quot;</span><span class="s1">) 
+        self.cursor.execute(</span><span class="s3">&quot;select codigo from productos&quot;</span><span class="s1">) 
+        </span><span class="s2">#Recogemos los codigos de los productos para despues descartar si esta o no en la base</span><span class="s1"> 
+        codigos = self.cursor.fetchall() 
+        existe=</span><span class="s0">False</span><span class="s1"> 
+        </span><span class="s0">for </span><span class="s1">producto </span><span class="s0">in </span><span class="s1">codigos: 
+ 
+            idCompare = str(producto) 
+            </span><span class="s2">#Si esta en la base; existe pasa a True y no se añadirá a la base</span><span class="s1"> 
+            </span><span class="s0">if </span><span class="s1">idCompare[</span><span class="s4">2</span><span class="s1">:</span><span class="s4">4</span><span class="s1">]==id: 
+                print(</span><span class="s3">&quot;Ya existe ese codigo!!&quot;</span><span class="s1">) 
+                self.ventanaAlertaCodigo.show_all() 
+                existe=</span><span class="s0">True</span><span class="s1"> 
+ 
+        </span><span class="s0">if </span><span class="s1">existe==</span><span class="s0">False</span><span class="s1">: 
+            </span><span class="s2">#Introducimos valores en la tabla</span><span class="s1"> 
+            self.cursor.execute(</span><span class="s3">&quot;insert into productos values('&quot; </span><span class="s1">+ id + </span><span class="s3">&quot;','&quot; </span><span class="s1">+ nombre + </span><span class="s3">&quot;','&quot; </span><span class="s1">+ precio + </span><span class="s3">&quot;','&quot; </span><span class="s1">+ cantidad + </span><span class="s3">&quot;')&quot;</span><span class="s1">) 
+            print(</span><span class="s3">&quot;Insertado&quot;</span><span class="s1">) 
+            </span><span class="s2">#Importante efectuar commits en cada modificacion para asegurarnos la integridad de los datos en la misma</span><span class="s1"> 
+            self.bd.commit() 
+ 
+        existe=</span><span class="s0">False</span><span class="s1"> 
+ 
+ 
+    </span><span class="s0">def </span><span class="s1">al_modificar(self, modificacion): 
+        </span><span class="s2">#Definimos variables de texto que recogeran el texto que hay en las cajas</span><span class="s1"> 
+        nombre = self.cajaNombreConsultada.get_text() 
+        precio = self.cajaPrecioConsultada.get_text() 
+        cantidad = self.cajaCantidadConsultada.get_text() 
+        id = self.cajaIdConsulta.get_text() 
+        </span><span class="s2">#Actualizamos los datos de la tabla en esa posicion mediante un Update</span><span class="s1"> 
+        self.cursor.execute( 
+            </span><span class="s3">&quot;update productos set Nombre ='&quot; </span><span class="s1">+ nombre + </span><span class="s3">&quot;',Precio='&quot; </span><span class="s1">+ precio + </span><span class="s3">&quot;',Cantidad='&quot; </span><span class="s1">+ cantidad + </span><span class="s3">&quot;'&quot; </span><span class="s1">+ </span><span class="s3">&quot; where Codigo='&quot; </span><span class="s1">+ id + </span><span class="s3">&quot;'&quot;</span><span class="s1">) 
+        print(</span><span class="s3">&quot;Modificado&quot;</span><span class="s1">) 
+        </span><span class="s2">#Importante efectuar commits en cada modificacion para asegurarnos la integridad de los datos en la misma</span><span class="s1"> 
+        self.bd.commit() 
+        </span><span class="s2">#Borramos las cajas usadas ya actualizadas</span><span class="s1"> 
+        self.cajaNombreConsultada.set_text(</span><span class="s3">&quot;&quot;</span><span class="s1">) 
+        self.cajaPrecioConsultada.set_text(</span><span class="s3">&quot;&quot;</span><span class="s1">) 
+        self.cajaCantidadConsultada.set_text(</span><span class="s3">&quot;&quot;</span><span class="s1">) 
+ 
+ 
+    </span><span class="s0">def </span><span class="s1">Eliminar(self, eliminado): 
+        </span><span class="s2">#Recoje el codigo al igual que la función buscar; la diferencia es que esta ejecute un delete pasando como parámetro el código</span><span class="s1"> 
+        cajaEliminar = self.cajaEliminar.get_text() 
+        self.cursor.execute(</span><span class="s3">&quot;delete from productos where Codigo ='&quot; </span><span class="s1">+ cajaEliminar + </span><span class="s3">&quot;'&quot;</span><span class="s1">) 
+        print(</span><span class="s3">&quot;Borrado&quot;</span><span class="s1">) 
+        self.ventanaAlertaArchivoEliminado.show_all() 
+        </span><span class="s2">#Importante efectuar commits en cada modificacion para asegurarnos la integridad de los datos en la misma</span><span class="s1"> 
+        self.bd.commit() 
+        </span><span class="s2">#Borramos la caja de Eliminar ya usada</span><span class="s1"> 
+        self.cajaEliminar.set_text(</span><span class="s3">&quot;&quot;</span><span class="s1">) 
+ 
+ 
+ 
+</span><span class="s2">#Funciones de limpieza de cajas de texto según Ventana</span><span class="s1"> 
+    </span><span class="s0">def </span><span class="s1">click_limpiarConsulta(self,limpieza): 
+        self.cajaIdConsulta.set_text(</span><span class="s3">&quot;&quot;</span><span class="s1">) 
+        self.cajaNombreConsultada.set_text(</span><span class="s3">&quot;&quot;</span><span class="s1">) 
+        self.cajaPrecioConsultada.set_text(</span><span class="s3">&quot;&quot;</span><span class="s1">) 
+        self.cajaCantidadConsultada.set_text(</span><span class="s3">&quot;&quot;</span><span class="s1">) 
+ 
+ 
+    </span><span class="s0">def </span><span class="s1">limpiarIntroducir(self, introduccion): 
+        self.cajaIntroducirCodId.set_text(</span><span class="s3">&quot;&quot;</span><span class="s1">) 
+        self.cajaIntroducirNombre.set_text(</span><span class="s3">&quot;&quot;</span><span class="s1">) 
+        self.cajaIntroducirPrecio.set_text(</span><span class="s3">&quot;&quot;</span><span class="s1">) 
+        self.cajaIntroducirCantidad.set_text(</span><span class="s3">&quot;&quot;</span><span class="s1">) 
+ 
+ 
+ 
+</span><span class="s2">#Funciones de muestra y ocultacion de ventanas según clicks:</span><span class="s1"> 
+    </span><span class="s0">def </span><span class="s1">click_introducir(self, entrada): 
+        self.ventanaEntrada.hide() 
+        self.ventanaIntroducir.show_all() 
+ 
+ 
+    </span><span class="s0">def </span><span class="s1">click_consultar(self, consulta): 
+        self.ventanaEntrada.hide() 
+        self.ventanaConsultas.show_all() 
+ 
+ 
+    </span><span class="s0">def </span><span class="s1">Eliminar_articulo(self,eliminado): 
+        self.ventanaEntrada.hide() 
+        self.ventanaEliminar.show_all() 
+ 
+ 
+ 
+</span><span class="s2">#Funciones de vuelta a la ventana principal</span><span class="s1"> 
+    </span><span class="s0">def </span><span class="s1">click_volverConsulta(self, vuelta): 
+        self.click_limpiarConsulta(self) 
+        self.ventanaConsultas.hide() 
+        self.ventanaEntrada.show_all() 
+ 
+ 
+    </span><span class="s0">def </span><span class="s1">volverIntroducir(self, vuelta): 
+        self.limpiarIntroducir(self) 
+        self.ventanaIntroducir.hide() 
+        self.ventanaEntrada.show_all() 
+ 
+ 
+    </span><span class="s0">def </span><span class="s1">volverEliminar(self, vuelta): 
+        self.cajaEliminar.set_text(</span><span class="s3">&quot;&quot;</span><span class="s1">) 
+        self.ventanaEliminar.hide() 
+        self.ventanaEntrada.show_all() 
+ 
+ 
+ 
+</span><span class="s2">#Declaración Inicial de handlers(manejadores, señales) y entrada de ventana Principal al iniciar la aplicación</span><span class="s1"> 
+    </span><span class="s0">def </span><span class="s1">__init__(self): 
+        </span><span class="s2">#Mostramos la ventana principal</span><span class="s1"> 
+        self.ventanaEntrada.show_all(); 
+        </span><span class="s2">#Manejadores; funciones definidas en Glade con su equivalencia en Python</span><span class="s1"> 
+        manejadores = { 
+                  </span><span class="s3">&quot;click_limpiarConsulta&quot;</span><span class="s1">:self.click_limpiarConsulta, 
+                  </span><span class="s3">&quot;click_volverConsulta&quot;</span><span class="s1">:self.click_volverConsulta, 
+                  </span><span class="s3">&quot;limpiarCamposIntroducir&quot;</span><span class="s1">:self.limpiarIntroducir, 
+                  </span><span class="s3">&quot;click_introducirStock&quot;</span><span class="s1">:self.introducirStock, 
+                  </span><span class="s3">&quot;Eliminar_articulo&quot;</span><span class="s1">:self.Eliminar_articulo, 
+                  </span><span class="s3">&quot;click_introducir&quot;</span><span class="s1">: self.click_introducir, 
+                  </span><span class="s3">&quot;volverIntroducir&quot;</span><span class="s1">:self.volverIntroducir, 
+                  </span><span class="s3">&quot;click_consultar&quot;</span><span class="s1">: self.click_consultar, 
+                  </span><span class="s3">&quot;volverEliminar&quot;</span><span class="s1">:self.volverEliminar, 
+                  </span><span class="s3">&quot;click_modificar&quot;</span><span class="s1">:self.al_modificar, 
+                  </span><span class="s3">&quot;cerrarAlertaCodigo&quot;</span><span class="s1">:self.alerta, 
+                  </span><span class="s3">&quot;al_buscar&quot;</span><span class="s1">:self.al_buscar, 
+                  </span><span class="s3">&quot;Terminar1&quot;</span><span class="s1">:self.Terminar, 
+                  </span><span class="s3">&quot;Terminar2&quot;</span><span class="s1">:self.Terminar, 
+                  </span><span class="s3">&quot;Terminar3&quot;</span><span class="s1">:self.Terminar, 
+                  </span><span class="s3">&quot;Terminar&quot;</span><span class="s1">:self.Terminar, 
+                  </span><span class="s3">&quot;Eliminar&quot;</span><span class="s1">:self.Eliminar, 
+                  </span><span class="s3">&quot;botonOk&quot;</span><span class="s1">:self.BotonOk 
+        } 
+        </span><span class="s2">#Conectamos los constructores con los manejadores</span><span class="s1"> 
+        self.builderVentanaPrincipal.connect_signals(manejadores) 
+        self.builderVentanaConsulta.connect_signals(manejadores) 
+        self.builderVentanaIntroducir.connect_signals(manejadores) 
+        self.builderVentanaEliminar.connect_signals(manejadores) 
+        self.builderVentanaAlerta.connect_signals(manejadores) 
+        self.builderVentanaArticuloEliminado.connect_signals(manejadores) 
+ 
+        </span><span class="s2">#Recojemos las cajas de las ventanas</span><span class="s1"> 
+        self.cajaIdConsulta = self.builderVentanaConsulta.get_object(</span><span class="s3">&quot;cajaIdConsulta&quot;</span><span class="s1">) 
+        self.cajaNombreConsultada = self.builderVentanaConsulta.get_object(</span><span class="s3">&quot;cajaNombreConsultada&quot;</span><span class="s1">) 
+        self.cajaPrecioConsultada = self.builderVentanaConsulta.get_object(</span><span class="s3">&quot;cajaPrecioConsultada&quot;</span><span class="s1">) 
+        self.cajaCantidadConsultada = self.builderVentanaConsulta.get_object(</span><span class="s3">&quot;cajaCantidadConsultada&quot;</span><span class="s1">) 
+        self.cajaIntroducirCodId = self.builderVentanaIntroducir.get_object(</span><span class="s3">&quot;cajaIntroducirCodId&quot;</span><span class="s1">) 
+        self.cajaIntroducirNombre = self.builderVentanaIntroducir.get_object(</span><span class="s3">&quot;cajaIntroducirNombre&quot;</span><span class="s1">) 
+        self.cajaIntroducirPrecio = self.builderVentanaIntroducir.get_object(</span><span class="s3">&quot;cajaIntroducirPrecio&quot;</span><span class="s1">) 
+        self.cajaIntroducirCantidad = self.builderVentanaIntroducir.get_object(</span><span class="s3">&quot;cajaIntroducirCantidad&quot;</span><span class="s1">) 
+        self.cajaEliminar = self.builderVentanaEliminar.get_object(</span><span class="s3">&quot;cajaEliminar&quot;</span><span class="s1">) 
+ 
+ 
+ 
+    </span><span class="s0">def </span><span class="s1">alerta(self, alerta): 
+        self.ventanaAlertaCodigo.hide() 
+ 
+ 
+ 
+    </span><span class="s0">def </span><span class="s1">BotonOk(self,ok): 
+        self.ventanaAlertaArchivoEliminado.hide() 
+ 
+ 
+ 
+</span><span class="s2">#Función de cierre del programa</span><span class="s1"> 
+    </span><span class="s0">def </span><span class="s1">Terminar(self, dos, tres): 
+        </span><span class="s2">#Cerramos todas las ventanas y el main</span><span class="s1"> 
+        self.ventanaEntrada.connect(</span><span class="s3">&quot;delete-event&quot;</span><span class="s1">, Gtk.main_quit) 
+        self.ventanaIntroducir.connect(</span><span class="s3">&quot;delete-event&quot;</span><span class="s1">, Gtk.main_quit) 
+        self.ventanaEliminar.connect(</span><span class="s3">&quot;delete-event&quot;</span><span class="s1">, Gtk.main_quit) 
+        self.ventanaConsultas.connect(</span><span class="s3">&quot;delete-event&quot;</span><span class="s1">, Gtk.main_quit) 
+        Gtk.main_quit() 
+ 
+ 
+Products() 
+Gtk.main() 
+</span><span class="s2">#Queda pendiente la inclusión de pequeñas consolas  que avisen del resultado de los eventos</span><span class="s1"> 
+</span><span class="s2">#(si se ha actualizado,borrado,... con exito o no) y la discriminacion de datos</span><span class="s1"> 
+</span><span class="s2">#segun sean caracteres o números</span></pre>
+</body>
+</html>
