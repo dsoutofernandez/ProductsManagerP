@@ -15,7 +15,9 @@ class Products:
     archivoVentanaEliminar = "VentanaEliminar.glade"
     archivoVentanaAlerta = "Alertacodigo.glade"
     archivoVentanaArticuloEliminado = "VentanaArticuloEliminado.glade"
+    archivoVentanaPopUp = "Popup.glade"
     #Creamos constructores de GTK para las interfaces
+    builderVentanaPopUp = Gtk.Builder()
     builderVentanaAlerta = Gtk.Builder()
     builderVentanaPrincipal = Gtk.Builder()
     builderVentanaConsulta = Gtk.Builder()
@@ -23,6 +25,7 @@ class Products:
     builderVentanaEliminar = Gtk.Builder()
     builderVentanaArticuloEliminado = Gtk.Builder()
     #Añadimos los archivos a los constructores de la interface
+    builderVentanaPopUp.add_from_file(archivoVentanaPopUp)
     builderVentanaPrincipal.add_from_file(archivoVentanaPrincipal)
     builderVentanaConsulta.add_from_file(archivoVentanaConsulta)
     builderVentanaIntroducir.add_from_file(archivoVentanaIntroducir)
@@ -31,6 +34,7 @@ class Products:
     builderVentanaArticuloEliminado.add_from_file(archivoVentanaArticuloEliminado)
 
     #Recogemos las ventanas contenedoras
+    ventanaPopUp = builderVentanaPopUp.get_object("PopUp")
     ventanaEntrada = builderVentanaPrincipal.get_object("VentanaPrincipal")
     ventanaConsultas = builderVentanaConsulta.get_object("VentanaConsulta")
     ventanaIntroducir = builderVentanaIntroducir.get_object("VentanaIntroducir")
@@ -72,7 +76,7 @@ class Products:
 
         elif self.RadioNomb.get_active():
              #Recogemos el codigo de la caja de texto
-            nombre = self.cajaIdConsulta.get_text()
+            nombre = self.cajaIdConsulta.get_text().upper()
             #Buscamos el codigo recogido en la base de datos
             self.cursor.execute("Select * from productos where Nombre='"+nombre+"'")
             #Recorremos el cursor y mostraremos por pantalla si existe
@@ -84,11 +88,16 @@ class Products:
                 self.cajaSpecsConsultada.set_text(str(producto[5]))
                 self.cajaMarcaConsultada.set_text(str(producto[6]))
 
-
+        t =str("")
+        y = str(self.cajaNombreConsultada.get_text())
+        if(y==t):
+            self.mostrarPop("No existe ese producto!")
+            self.cajaIdConsulta.set_text("")
 
 
     def introducirStock(self, introducir):
         """Este metodo introduce o stock"""
+        t =str("")
         id = self.cajaIntroducirCodId.get_text().upper()
         nombre = self.cajaIntroducirNombre.get_text().upper()
         precio = self.cajaIntroducirPrecio.get_text().upper()
@@ -97,29 +106,46 @@ class Products:
         specs = self.cajaIntroducirSpecs.get_text().upper()
         marca = self.cajaIntroducirMarca.get_text().upper()
 
-        self.limpiarIntroducir(self)
-        print("inserte")
-        self.cursor.execute("select codigo from productos")
-        #Recogemos los codigos de los productos para despues descartar si esta o no en la base
-        codigos = self.cursor.fetchall()
-        existe=False
-        for producto in codigos:
+        stid =str(id)
+        stnombre = str(nombre)
+        stprecio =str(precio)
+        stcantidad =str(cantidad)
+        stspecs =str(specs)
+        stmarca = str(marca)
+        #Control de excepciones de cajas vacias o cajas precio y cantidad no numericas
+        if(t==stid or t==stnombre or t==stprecio or t==stcantidad or t==stspecs or t==stmarca):
+            self.mostrarPop("Debe rellenar todos los campos!")
+        else:
+            if(not stcantidad.isdigit() or not stprecio.isdigit()):
+                self.mostrarPop("Los campos cantidad y precio deben ser numeros!")
+            else:
+                print("inserte")
+                self.cursor.execute("select codigo from productos")
+                #Recogemos los codigos de los productos para despues descartar si esta o no en la base
+                codigos = self.cursor.fetchall()
+                existe=False
+                for producto in codigos:
 
-            idCompare = str(producto)
-            #Si esta en la base; existe pasa a True y no se añadirá a la base
-            if idCompare[2:4]==id:
-                print("Ya existe ese codigo!!")
-                existe = True
-                self.ventanaAlertaCodigo.show_all()
+                    idCompare = str(producto).lstrip("('").rstrip("',)")
+                    print(id)
+                    print(idCompare)
+                    #Si esta en la base; existe pasa a True y no se añadirá a la base
+                    if idCompare==id:
+                        self.cajaIntroducirCodId.set_text("")
+                        print("Ya existe ese codigo!!")
+                        existe = True
+                        self.ventanaAlertaCodigo.show_all()
 
-        if existe==False:
-            #Introducimos valores en la tabla
-            self.cursor.execute("insert into productos values('" + id + "','" + nombre + "','" + precio + "','" + cantidad + "','" + estado + "','" + specs + "','" + marca + "')")
-            print("Insertado")
-            #Importante efectuar commits en cada modificacion para asegurarnos la integridad de los datos en la misma
-            self.bd.commit()
+                if existe==False:
+                    self.limpiarIntroducir(self)
+                    #Introducimos valores en la tabla
+                    self.cursor.execute("insert into productos values('" + id + "','" + nombre + "','" + precio + "','" + cantidad + "','" + estado + "','" + specs + "','" + marca + "')")
+                    print("Insertado")
+                    self.mostrarPop("Insertado!")
+                    #Importante efectuar commits en cada modificacion para asegurarnos la integridad de los datos en la misma
+                    self.bd.commit()
 
-        existe=False
+                existe=False
 
 
     def al_modificar(self, modificacion):
@@ -151,8 +177,8 @@ class Products:
     def Eliminar(self, eliminado):
         """Esta funcion elimina los articulos solicitados de la base de datos"""
         #Recoje el codigo al igual que la función buscar; la diferencia es que esta ejecute un delete pasando como parámetro el código
-        cajaEliminar = self.cajaEliminar.get_text()
-        self.cursor.execute("delete from productos where Codigo ='" + cajaEliminar + "'")
+        cajaEliminar = self.cajaEliminar.get_text().upper()
+        self.cursor.execute("delete from productos where Codigo ='" +cajaEliminar+ "'")
         print("Borrado")
         self.ventanaAlertaArchivoEliminado.show_all()
         #Importante efectuar commits en cada modificacion para asegurarnos la integridad de los datos en la misma
@@ -189,8 +215,8 @@ class Products:
     def realizar_venta(self, venta):
         """Este metodo hace ventas y reduce stock"""
         id = self.cajaIdConsulta.get_text().upper()
-        cantidadInicial = self.cajaCantidadConsultada.get_text()
-        cantidadVenta = self.cajaNventas.get_text()
+        cantidadInicial = self.cajaCantidadConsultada.get_text().upper()
+        cantidadVenta = self.cajaNventas.get_text().upper()
         cantidadF = float(cantidadInicial) - float(cantidadVenta)
         cantidadI = int(cantidadF)
         cantidad = str(cantidadI)
@@ -198,9 +224,10 @@ class Products:
 
         if cantidadI==0:
             self.cursor.execute("delete from productos where Codigo ='" + id + "'")
-            self.consolaVenta.set_text("            YA NO QUEDAN ARTICULOS!           ")
+            self.cajaCantidadConsultada.set_text(str(int(cantidad)))
+            self.mostrarPop("Ya no quedan mas articulos de este tipo!! ARTICULO AGOTADO!!")
         elif cantidadI<=-1:
-            self.consolaVenta.set_text("         NO HAY ARTICULOS SUFICIENTES!        ")
+            self.mostrarPop("NO HAY ARTICULOS SUFICIENTES!")
         else:
             self.cursor.execute("update productos set Cantidad='"+cantidad+"' where Codigo='"+id+"'")
             print("Modificado")
@@ -212,6 +239,7 @@ class Products:
 
     def generar_informe(self, entrada):
         """Este metodo genera el informe de la base de datos"""
+        self.mostrarPop("Hemos generado un informe de la base de datos en la raiz del programa!")
         ReportLab()
 
 
@@ -259,6 +287,12 @@ class Products:
         self.ventanaEliminar.hide()
         self.ventanaEntrada.show_all()
 
+    def mostrarPop(self,msg):
+        self.PopUp.set_text(msg)
+        self.ventanaPopUp.show_all()
+
+    def cerrarpu(self,vuelta):
+        self.ventanaPopUp.hide()
 
 
 #Declaración Inicial de handlers(manejadores, señales) y entrada de ventana Principal al iniciar la aplicación
@@ -284,6 +318,7 @@ class Products:
                   "click_vender":self.realizar_venta,
                   "cerrarAlertaCodigo":self.alerta,
                   "informe":self.generar_informe,
+                  "cerrarpopup":self.cerrarpu,
                   "al_buscar":self.al_buscar,
                   "Terminar1":self.Terminar,
                   "Terminar2":self.Terminar,
@@ -299,6 +334,7 @@ class Products:
         self.builderVentanaEliminar.connect_signals(manejadores)
         self.builderVentanaAlerta.connect_signals(manejadores)
         self.builderVentanaArticuloEliminado.connect_signals(manejadores)
+        self.builderVentanaPopUp.connect_signals(manejadores)
 
         #Recojemos las cajas de las ventanas
         self.cajaIdConsulta = self.builderVentanaConsulta.get_object("cajaIdConsulta")
@@ -320,6 +356,7 @@ class Products:
         self.cajaEliminar = self.builderVentanaEliminar.get_object("cajaEliminar")
         self.RadioCod = self.builderVentanaConsulta.get_object("radioCodigo")
         self.RadioNomb = self.builderVentanaConsulta.get_object("radioNombre")
+        self.PopUp = self.builderVentanaPopUp.get_object("popup")
 
 
 

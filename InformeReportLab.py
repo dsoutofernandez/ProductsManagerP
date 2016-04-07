@@ -20,8 +20,11 @@ class ReportLab:
     tablaBaseDatos = []
 
     cabecera = ["CODIGO","ARTICULO","PRECIO","UNIDADES","ESTADO","DESCRIPCION","MARCA"]
+    cabecera2 = ["","","","","","",""]
+
 
     tablaBaseDatos.append(cabecera)
+    tablaBaseDatos.append(cabecera2)
 
     for fila in cursor:
         tablaBaseDatos.append(fila)

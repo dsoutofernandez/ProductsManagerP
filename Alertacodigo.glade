@@ -12,7 +12,9 @@
           <object class="GtkLabel" id="label1">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="label" translatable="yes">                                       ALERTA!!!!!                                     </property>
+            <property name="label" translatable="yes">                                                                                           
+                                       ALERTA!!!!!                                    
+                                                                                           </property>
             <attributes>
               <attribute name="foreground" value="#ffffffffffff"/>
               <attribute name="background" value="#cccc00000000"/>
@@ -32,6 +34,11 @@
 ATENCION!!: Ya existe ese C. Barras o ID en la base
      de datos. Por favor; sustituyalo por otro.
                               Gracias.
+
+
+
+
+
 </property>
           </object>
           <packing>
